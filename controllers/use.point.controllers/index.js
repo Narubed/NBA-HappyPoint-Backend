@@ -1,11 +1,11 @@
 const bcrypt = require("bcrypt");
 const multer = require("multer");
 const fs = require("fs");
-const { Privilege, validate } = require("../../models/privilege.model");
+const { UsePoint, validate } = require("../../models/use.point.model");
 
 exports.findAll = async (req, res) => {
   try {
-    Privilege.find()
+    UsePoint.find()
       .then(async (data) => {
         res.send({ data, message: "success", status: true });
       })
@@ -20,7 +20,7 @@ exports.findAll = async (req, res) => {
 };
 exports.findOne = (req, res) => {
   const id = req.params.id;
-  Privilege.findById(id)
+  UsePoint.findById(id)
     .then((data) => {
       if (!data)
         res
@@ -38,7 +38,7 @@ exports.findOne = (req, res) => {
 
 exports.delete = (req, res) => {
   const id = req.params.id;
-  Privilege.findByIdAndRemove(id, { useFindAndModify: false })
+  UsePoint.findByIdAndRemove(id, { useFindAndModify: false })
     .then((data) => {
       console.log(data);
       if (!data) {
@@ -70,7 +70,7 @@ exports.update = async (req, res) => {
     }
     const id = req.params.id;
 
-    Privilege.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+    UsePoint.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
       .then((data) => {
         console.log(data);
         if (!data) {
@@ -103,7 +103,7 @@ exports.create = async (req, res) => {
         .status(400)
         .send({ message: error.details[0].message, status: false });
 
-    await new Privilege({
+    await new UsePoint({
       ...req.body,
     }).save();
     res.status(201).send({ message: "สร้างข้อมูลสำเร็จ", status: true });

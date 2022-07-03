@@ -14,6 +14,9 @@ const privilege = require("./routes/privilege");
 const test = require("./routes/test");
 const uploadImage = require("./routes/uploadImage");
 const deleteImage = require("./routes/deleteImage");
+const reportHistory = require("./routes/report.history");
+const receivedPoint = require("./routes/received.point");
+const usePoint = require("./routes/use.point");
 connection();
 
 // middlewares
@@ -27,6 +30,9 @@ app.use("/api/happy-point/login_members", login_members);
 app.use("/api/happy-point/test", test);
 app.use("/api/happy-point/privilege", privilege);
 app.use("/api/happy-point/deleteImage", deleteImage);
+app.use("/api/happy-point/report_history", reportHistory);
+app.use("/api/happy-point/recived_point/", receivedPoint);
+app.use("/api/happy-point/use_point/", usePoint);
 
 const port = process.env.PORT || 9000;
 app.listen(port, console.log(`Listening on port ${port}...`));

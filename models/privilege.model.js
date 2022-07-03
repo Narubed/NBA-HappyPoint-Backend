@@ -12,8 +12,10 @@ const PrivilegeSchema = new mongoose.Schema({
   pvl_date_start: { type: Date, required: false, default: Date.now() },
   pvl_date_end: { type: Date, required: false, default: Date.now() },
   pvl_image: { type: Array, default: [] },
+  pvl_useing: { type: Array, default: [] },
   pvl_detail: { type: String, required: true },
   pvl_status: { type: Boolean, default: true },
+  pvl_note: { type: String, required: false, default: "ไม่มี" },
 });
 
 PrivilegeSchema.methods.generateAuthToken = function () {
@@ -36,8 +38,10 @@ const validate = (data) => {
     pvl_date_start: Joi.date().raw().default(Date.now()),
     pvl_date_end: Joi.date().raw().default(Date.now()),
     pvl_image: Joi.array(),
+    pvl_useing: Joi.array(),
     pvl_detail: Joi.string().required().label("pvl_detail"),
     pvl_status: Joi.boolean().default(true),
+    pvl_note: Joi.string().default("ไม่มี"),
   });
   return schema.validate(data);
 };
