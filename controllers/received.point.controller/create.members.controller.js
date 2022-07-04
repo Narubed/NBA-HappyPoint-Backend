@@ -31,7 +31,7 @@ exports.create = async (req, res) => {
             });
           } else
             res.status(201).send({
-              message: "มีชื่อผู้ใช้งานนี้ในระบบเเล้ว ทำการเเก้ไข Point แทน",
+              message: "มีชื่อผู้ใช้งานนี้ในระบบเเล้ว ทำการเพิ่ม Point แทน",
               status: false,
             });
         })
