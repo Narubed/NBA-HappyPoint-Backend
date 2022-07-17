@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const http = require("http");
+const { Server } = require("socket.io");
 
 const fs = require("fs");
 const path = require("path");
@@ -23,6 +25,29 @@ connection();
 app.use(express.json());
 app.use(cors());
 
+// socket.io
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
+
+  socket.on("join_room", (data) => {
+    console.log(data);
+    socket.join(data);
+  });
+
+  socket.on("send_message", (data) => {
+    console.log(data);
+    socket.to(data.room).emit("receive_message", data);
+  });
+});
+
 // routes
 app.use("/api/happy-point/uploadImage", uploadImage);
 app.use("/api/happy-point/members", members);
@@ -35,4 +60,4 @@ app.use("/api/happy-point/recived_point/", receivedPoint);
 app.use("/api/happy-point/use_point/", usePoint);
 
 const port = process.env.PORT || 9000;
-app.listen(port, console.log(`Listening on port ${port}...`));
+server.listen(port, console.log(`Listening on port ${port}...`));
