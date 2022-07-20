@@ -4,6 +4,8 @@ const fs = require("fs");
 const { Members, validate } = require("../../models/members.model");
 const { PointHistory } = require("../../models/point.history.model");
 
+const CheckLevelMember = require("./component/check.level.member");
+
 exports.commission = async (req, res) => {
   console.log(req.body);
   try {
@@ -33,8 +35,11 @@ exports.commission = async (req, res) => {
     });
 
     if (user) {
-      const valueCurrent = user.member_current_point + req.body.point;
-      const valuetotal = user.member_total_point + req.body.point;
+      let multiply = 1;
+      await CheckLevelMember(user).then((res) => (multiply = res));
+      const newPoint = req.body.point * multiply;
+      const valueCurrent = user.member_current_point + newPoint;
+      const valuetotal = user.member_total_point + newPoint;
       await Members.findByIdAndUpdate(
         user._id,
         { member_current_point: valueCurrent, member_total_point: valuetotal },
@@ -62,7 +67,7 @@ exports.commission = async (req, res) => {
         ph_member_id: user._id,
         ph_title: req.body.title,
         ph_detail: req.body.detaial,
-        ph_point: req.body.point,
+        ph_point: newPoint,
       };
       await new PointHistory(postPoint).save();
     } else {
