@@ -1,9 +1,9 @@
 const router = require("express").Router();
 
 const receivedCreate = require("../controllers/received.point.controller/create.members.controller");
-const changePoint = require("../controllers/received.point.controller/change.point.member.controller");
+const commission = require("../controllers/received.point.controller/commission.point.member.controller");
 
 router.post("/", receivedCreate.create);
-router.put("/change_point/", changePoint.update);
+router.post("/commission/", commission.commission);
 
 module.exports = router;

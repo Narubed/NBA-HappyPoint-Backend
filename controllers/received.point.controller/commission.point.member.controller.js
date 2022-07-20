@@ -2,8 +2,9 @@ const bcrypt = require("bcrypt");
 const multer = require("multer");
 const fs = require("fs");
 const { Members, validate } = require("../../models/members.model");
+const { PointHistory } = require("../../models/point.history.model");
 
-exports.update = async (req, res) => {
+exports.commission = async (req, res) => {
   console.log(req.body);
   try {
     if (!req.body) {
@@ -11,9 +12,19 @@ exports.update = async (req, res) => {
         message: "ส่งข้อมูลผิดพลาด",
       });
     }
-    if (!req.body.phone_number || !req.body.point) {
+    if (
+      !req.body.phone_number ||
+      !req.body.point ||
+      !req.body.title ||
+      !req.body.detaial
+    ) {
       return res.status(400).send({
         message: "ส่งข้อมูลผิดพลาด",
+      });
+    }
+    if (!req.body.timestamp) {
+      return res.status(401).send({
+        message: "ไม่ได้ส่งเวลาที่ถูกทำรายการมาด้วย",
       });
     }
 
@@ -32,7 +43,7 @@ exports.update = async (req, res) => {
         .then((data) => {
           if (!data) {
             res.status(404).send({
-              message: `มีชื่อผู้ใช้งานนี้ในระบบเเล้ว ไม่สามารถเเก้ไขผู้ใช้งานนี้ได้`,
+              message: `ไม่สามารถเเก้ไขผู้ใช้งานนี้ได้`,
               status: false,
             });
           } else
@@ -47,6 +58,13 @@ exports.update = async (req, res) => {
             status: false,
           });
         });
+      const postPoint = {
+        ph_member_id: user._id,
+        ph_title: req.body.title,
+        ph_detail: req.body.detaial,
+        ph_point: req.body.point,
+      };
+      await new PointHistory(postPoint).save();
     } else {
       return res.status(409).send({
         status: false,

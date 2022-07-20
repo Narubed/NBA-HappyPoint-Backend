@@ -36,7 +36,6 @@ exports.create = async (req, res) => {
       await uploadFileCreate(req.files, res, { i, reqFiles });
     }
     try {
-      console.log(reqFiles);
       await new Privilege({
         ...req.body,
         pvl_image: reqFiles,

@@ -40,7 +40,6 @@ exports.delete = (req, res) => {
   const id = req.params.id;
   Privilege.findByIdAndRemove(id, { useFindAndModify: false })
     .then((data) => {
-      console.log(data);
       if (!data) {
         res.status(404).send({
           message: `ไม่สามารถลบผู้ใช้งานนี้ได้`,
@@ -61,7 +60,6 @@ exports.delete = (req, res) => {
     });
 };
 exports.update = async (req, res) => {
-  console.log(req.body);
   try {
     if (!req.body) {
       return res.status(400).send({
@@ -72,7 +70,6 @@ exports.update = async (req, res) => {
 
     Privilege.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
       .then((data) => {
-        console.log(data);
         if (!data) {
           res.status(404).send({
             message: `ไม่สามารถเเก้ไขข้อมูลนี้ได้`,
@@ -95,7 +92,6 @@ exports.update = async (req, res) => {
   }
 };
 exports.create = async (req, res) => {
-  console.log(req.body);
   try {
     const { error } = validate(req.body);
     if (error)

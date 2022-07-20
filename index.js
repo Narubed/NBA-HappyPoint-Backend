@@ -21,13 +21,11 @@ app.use("/api/happy-point/deleteImage", require("./routes/deleteImage"));
 app.use("/api/happy-point/report_history", require("./routes/report.history"));
 app.use("/api/happy-point/recived_point/", require("./routes/received.point"));
 app.use("/api/happy-point/use_point/", require("./routes/use.point"));
+app.use("/api/happy-point/point_history", require("./routes/point.history"));
 
 const port = process.env.PORT || 9000;
 const server = app.listen(port, console.log(`Listening on port ${port}...`));
 // server.listen(port, console.log(`Listening on port ${port}...`));
-
-const UsePoint = mongoose.model("use-point");
-const Privilege = mongoose.model("privilege");
 
 const io = require("socket.io")(server, {
   allowEIO3: true,
@@ -47,38 +45,23 @@ io.on("connection", async (socket) => {
     socket.join(data);
   });
   // -----------------usePoint------------------
+  const usePointReduce = require("./socket/use.point");
   socket.on("send_use_point", async (data) => {
-    let newUsePoint = [];
-    await UsePoint.findById(data.room).then(async (data) => {
-      newUsePoint = data;
-      //   res.send({ data, message: "success", status: true });
-    });
-    const valueReduceUseing = newUsePoint.usep_useing.reduce(
-      (value, item) => value + item.member_amount,
-      0
-    );
-    const newValueReduceUseing =
-      newUsePoint.usep_limited_total - valueReduceUseing;
+    let newValueReduceUseing = 0;
+    await usePointReduce(data)
+      .then((res) => (newValueReduceUseing = res))
+      .catch(() => (newValueReduceUseing = 0));
     socket
       .to(data.room)
       .emit("value_useing_use_point", { ...data, value: newValueReduceUseing });
   });
   // -------------------Privilege------------------
+  const privilegeReduce = require("./socket/privilege");
   socket.on("send_privilege", async (data) => {
-    let newPrivilege = [];
-    await Privilege.findById(data.room).then(async (data) => {
-      newPrivilege = data;
-      //   res.send({ data, message: "success", status: true });
-    });
-    const valueReduceUseing = newPrivilege.pvl_useing.reduce(
-      (value, item) => value + item.member_amount,
-      0
-    );
-    console.log("then data =>", valueReduceUseing);
-    console.log(newPrivilege);
-    const newValueReduceUseing =
-      newPrivilege.pvl_limited_total - valueReduceUseing;
-    console.log(newValueReduceUseing);
+    let newValueReduceUseing = 0;
+    await privilegeReduce(data)
+      .then((res) => (newValueReduceUseing = res))
+      .catch(() => (newValueReduceUseing = 0));
     socket
       .to(data.room)
       .emit("value_useing_privilege", { ...data, value: newValueReduceUseing });
