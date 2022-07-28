@@ -6,16 +6,8 @@ const CLIENT_ID = process.env.GOOGLE_DRIVE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
 const REDIRECT_URI = process.env.GOOGLE_DRIVE_REDIRECT_URI;
 const REFRESH_TOKEN = process.env.GOOGLE_DRIVE_REFRESH_TOKEN;
-let express = require("express"),
-  mongoose = require("mongoose"),
-  router = express.Router();
+const CheckHeader = require("../check.header/nbadigitalservice");
 const { Users } = require("../models/user");
-
-const cors = require("cors");
-var corsOptions = {
-  origin: process.env.CORS_API_WEB,
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-};
 
 const oauth2Client = new google.auth.OAuth2(
   CLIENT_ID,
@@ -35,8 +27,9 @@ const storage = multer.diskStorage({
   },
 });
 
-(exports.create = cors(corsOptions)),
-  async (req, res) => {
+exports.create = async (req, res) => {
+  try {
+    await CheckHeader(req, res);
     let upload = multer({ storage: storage }).array("imgCollection", 6);
     upload(req, res, async function (err) {
       const reqFiles = [];
@@ -46,37 +39,18 @@ const storage = multer.diskStorage({
         console.log(res.data);
         // reqFiles.push(url + "/public/" + req.files[i].filename);
       }
-      try {
-        console.log(reqFiles);
-        await new Users({
-          ...req.body,
-          imgCollection: reqFiles,
-        }).save();
-        res.status(201).send({ message: "สร้างผู้ใช้งานสำเร็จ", status: true });
-      } catch (error) {
-        res.status(500).send({ message: "มีบางอย่างผิดพลาด", status: false });
-      }
-      // const user = new User({
-      //   _id: new mongoose.Types.ObjectId(),
-      //   imgCollection: reqFiles,
-      // });
-      // user.save().then((result) => {
-      //   res.status(201).json({
-      //     message: "Done upload!",
-      //     userCreated: {
-      //       _id: result._id,
-      //       imgCollection: result.imgCollection,
-      //     },
-      //   });
-      // });
-      //   .catch((err) => {
-      //     console.log(err),
-      //       res.status(500).json({
-      //         error: err,
-      //       });
-      //   });
+
+      console.log(reqFiles);
+      await new Users({
+        ...req.body,
+        imgCollection: reqFiles,
+      }).save();
+      res.status(201).send({ message: "สร้างผู้ใช้งานสำเร็จ", status: true });
     });
-  };
+  } catch (error) {
+    res.status(500).send({ message: "มีบางอย่างผิดพลาด", status: false });
+  }
+};
 
 async function uploadFileCreate(req, res, { i, reqFiles }) {
   const filePath = req[i].path;
@@ -93,7 +67,7 @@ async function uploadFileCreate(req, res, { i, reqFiles }) {
       media: media,
     });
 
-    generatePublicUrl(response.data.id);
+    // generatePublicUrl(response.data.id);
     reqFiles.push(response.data.id);
     console.log(response.data.id);
     // const { error } = validate(req.body);

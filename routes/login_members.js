@@ -2,14 +2,15 @@ const router = require("express").Router();
 const { Members } = require("../models/members.model");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
+const CheckHeader = require("../check.header/nbadigitalservice");
 require("dotenv").config();
 // partner_username
 // emp_password
 
 router.post("/", async (req, res) => {
-  console.log(req.body);
-  // console.log(req.body);
+  console.log(req.headers);
   try {
+    await CheckHeader(req, res);
     const { error } = validate(req.body);
     if (error)
       return res.status(400).send({ message: error.details[0].message });
