@@ -10,6 +10,12 @@ let express = require("express"),
   mongoose = require("mongoose"),
   router = express.Router();
 
+const cors = require("cors");
+var corsOptions = {
+  origin: process.env.CORS_API_WEB,
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
 const oauth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,
@@ -28,53 +34,52 @@ const storage = multer.diskStorage({
   },
 });
 
-exports.create = async (req, res) => {
-  console.log("เพะิ่มรูปภาพใหม่ 1 รูป");
-  try {
-    let upload = multer({ storage: storage }).single("imgCollection");
-    upload(req, res, function (err) {
-      if (!req.file) {
-        return res.send("Please select an image to upload");
-      } else if (err instanceof multer.MulterError) {
-        return res.send(err);
-      } else if (err) {
-        return res.send(err);
-      }
-      console.log(req.file);
-      uploadFileCreate(req, res);
-    });
+(exports.create = cors(corsOptions)),
+  async (req, res) => {
+    console.log("เพะิ่มรูปภาพใหม่ 1 รูป");
+    try {
+      let upload = multer({ storage: storage }).single("imgCollection");
+      upload(req, res, function (err) {
+        if (!req.file) {
+          return res.send("Please select an image to upload");
+        } else if (err instanceof multer.MulterError) {
+          return res.send(err);
+        } else if (err) {
+          return res.send(err);
+        }
+        console.log(req.file);
+        uploadFileCreate(req, res);
+      });
 
-    async function uploadFileCreate(req, res) {
-      const filePath = req.file.path;
-      console.log(filePath);
-      let fileMetaData = {
-        name: req.file.originalname,
-        parents: ["13ZsmtkF7WVuj3fjJKzRCWVgEX6DDoN6u"],
-      };
-      let media = {
-        body: fs.createReadStream(filePath),
-      };
-      try {
-        const response = await drive.files.create({
-          resource: fileMetaData,
-          media: media,
-        });
-        generatePublicUrl(response.data.id);
-        console.log(response.data.id);
-        res
-          .status(201)
-          .send({
+      async function uploadFileCreate(req, res) {
+        const filePath = req.file.path;
+        console.log(filePath);
+        let fileMetaData = {
+          name: req.file.originalname,
+          parents: ["13ZsmtkF7WVuj3fjJKzRCWVgEX6DDoN6u"],
+        };
+        let media = {
+          body: fs.createReadStream(filePath),
+        };
+        try {
+          const response = await drive.files.create({
+            resource: fileMetaData,
+            media: media,
+          });
+          generatePublicUrl(response.data.id);
+          console.log(response.data.id);
+          res.status(201).send({
             message: "Representative created successfully",
             image: response.data.id,
           });
-      } catch (error) {
-        res.status(500).send({ message: "Internal Server Error" });
+        } catch (error) {
+          res.status(500).send({ message: "Internal Server Error" });
+        }
       }
+    } catch (error) {
+      console.log(error.massage);
     }
-  } catch (error) {
-    console.log(error.massage);
-  }
-};
+  };
 
 async function generatePublicUrl(res) {
   console.log("generatePublicUrl");

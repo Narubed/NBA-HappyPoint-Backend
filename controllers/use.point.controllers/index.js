@@ -3,21 +3,28 @@ const multer = require("multer");
 const fs = require("fs");
 const { UsePoint, validate } = require("../../models/use.point.model");
 
-exports.findAll = async (req, res) => {
-  try {
-    UsePoint.find()
-      .then(async (data) => {
-        res.send({ data, message: "success", status: true });
-      })
-      .catch((err) => {
-        res.status(500).send({
-          message: err.message || "มีบางอย่างผิดพลาด",
-        });
-      });
-  } catch (error) {
-    res.status(500).send({ message: "มีบางอย่างผิดพลาด", status: false });
-  }
+const cors = require("cors");
+var corsOptions = {
+  origin: process.env.CORS_API_WEB,
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
+
+(exports.findAll = cors(corsOptions)),
+  async (req, res) => {
+    try {
+      UsePoint.find()
+        .then(async (data) => {
+          res.send({ data, message: "success", status: true });
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message: err.message || "มีบางอย่างผิดพลาด",
+          });
+        });
+    } catch (error) {
+      res.status(500).send({ message: "มีบางอย่างผิดพลาด", status: false });
+    }
+  };
 exports.findOne = (req, res) => {
   const id = req.params.id;
   UsePoint.findById(id)

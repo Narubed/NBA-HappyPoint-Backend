@@ -11,6 +11,12 @@ let express = require("express"),
   router = express.Router();
 const { Users } = require("../models/user");
 
+const cors = require("cors");
+var corsOptions = {
+  origin: process.env.CORS_API_WEB,
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
 const oauth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,
@@ -29,47 +35,48 @@ const storage = multer.diskStorage({
   },
 });
 
-exports.create = async (req, res) => {
-  let upload = multer({ storage: storage }).array("imgCollection", 6);
-  upload(req, res, async function (err) {
-    const reqFiles = [];
-    const url = req.protocol + "://" + req.get("host");
-    for (var i = 0; i < req.files.length; i++) {
-      await uploadFileCreate(req.files, res, { i, reqFiles });
-      console.log(res.data);
-      // reqFiles.push(url + "/public/" + req.files[i].filename);
-    }
-    try {
-      console.log(reqFiles);
-      await new Users({
-        ...req.body,
-        imgCollection: reqFiles,
-      }).save();
-      res.status(201).send({ message: "สร้างผู้ใช้งานสำเร็จ", status: true });
-    } catch (error) {
-      res.status(500).send({ message: "มีบางอย่างผิดพลาด", status: false });
-    }
-    // const user = new User({
-    //   _id: new mongoose.Types.ObjectId(),
-    //   imgCollection: reqFiles,
-    // });
-    // user.save().then((result) => {
-    //   res.status(201).json({
-    //     message: "Done upload!",
-    //     userCreated: {
-    //       _id: result._id,
-    //       imgCollection: result.imgCollection,
-    //     },
-    //   });
-    // });
-    //   .catch((err) => {
-    //     console.log(err),
-    //       res.status(500).json({
-    //         error: err,
-    //       });
-    //   });
-  });
-};
+(exports.create = cors(corsOptions)),
+  async (req, res) => {
+    let upload = multer({ storage: storage }).array("imgCollection", 6);
+    upload(req, res, async function (err) {
+      const reqFiles = [];
+      const url = req.protocol + "://" + req.get("host");
+      for (var i = 0; i < req.files.length; i++) {
+        await uploadFileCreate(req.files, res, { i, reqFiles });
+        console.log(res.data);
+        // reqFiles.push(url + "/public/" + req.files[i].filename);
+      }
+      try {
+        console.log(reqFiles);
+        await new Users({
+          ...req.body,
+          imgCollection: reqFiles,
+        }).save();
+        res.status(201).send({ message: "สร้างผู้ใช้งานสำเร็จ", status: true });
+      } catch (error) {
+        res.status(500).send({ message: "มีบางอย่างผิดพลาด", status: false });
+      }
+      // const user = new User({
+      //   _id: new mongoose.Types.ObjectId(),
+      //   imgCollection: reqFiles,
+      // });
+      // user.save().then((result) => {
+      //   res.status(201).json({
+      //     message: "Done upload!",
+      //     userCreated: {
+      //       _id: result._id,
+      //       imgCollection: result.imgCollection,
+      //     },
+      //   });
+      // });
+      //   .catch((err) => {
+      //     console.log(err),
+      //       res.status(500).json({
+      //         error: err,
+      //       });
+      //   });
+    });
+  };
 
 async function uploadFileCreate(req, res, { i, reqFiles }) {
   const filePath = req[i].path;
@@ -86,7 +93,7 @@ async function uploadFileCreate(req, res, { i, reqFiles }) {
       media: media,
     });
 
-    // generatePublicUrl(response.data.id);
+    generatePublicUrl(response.data.id);
     reqFiles.push(response.data.id);
     console.log(response.data.id);
     // const { error } = validate(req.body);

@@ -7,6 +7,7 @@ require("dotenv").config();
 // emp_password
 
 router.post("/", async (req, res) => {
+  console.log(req.body);
   // console.log(req.body);
   try {
     const { error } = validate(req.body);
@@ -42,6 +43,7 @@ router.post("/", async (req, res) => {
     //   partner_sublevel: member.partner_sublevel,
     //   partner_status: member.partner_status,
     // };
+    console.log("seuccess Login");
     res.status(200).send({
       token: token,
       message: "logged in successfully",
