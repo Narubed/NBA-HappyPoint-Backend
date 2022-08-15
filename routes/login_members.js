@@ -44,12 +44,18 @@ router.post("/", async (req, res) => {
     //   partner_sublevel: member.partner_sublevel,
     //   partner_status: member.partner_status,
     // };
+    console.log(member);
+    const NewValue = {
+      _id: member._id,
+      member_firstname: member.member_firstname,
+      member_lastname: member.member_lastname,
+    };
     console.log("seuccess Login");
     res.status(200).send({
       token: token,
       message: "logged in successfully",
       status: true,
-      data: member,
+      data: NewValue,
     });
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error" });

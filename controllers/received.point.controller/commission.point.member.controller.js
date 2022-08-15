@@ -75,8 +75,8 @@ exports.commission = async (req, res) => {
       };
       await new PointHistory(postPoint).save();
     } else {
-      return res.status(409).send({
-        status: false,
+      return res.status(201).send({
+        status: true,
         message: "หาผู้ใช้งานนี้ไม่พบ หรือไม่มีผู้ใช้งานนี้ในระบบ",
       });
     }
