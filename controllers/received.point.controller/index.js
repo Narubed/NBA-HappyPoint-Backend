@@ -33,13 +33,22 @@ exports.findByPhone = async (req, res) => {
   const id = req.params.id;
   console.log(id);
   try {
-    Members.find({ member_phone_number: id })
+    Members.findOne({ member_phone_number: id })
       .then((data) => {
         if (!data)
           res
             .status(404)
             .send({ message: "ไม่สามารถหาผู้ใช้งานนี้ได้", status: false });
-        else res.send({ data, status: true });
+        else {
+          const newResponse = {
+            phone: data.member_phone_number,
+            firstname: data.member_firstname,
+            lastname: data.member_lastname,
+            point: data.member_current_point,
+          };
+          console.log(data);
+          res.send({ data: newResponse, status: true });
+        }
       })
       .catch((err) => {
         res.status(500).send({
