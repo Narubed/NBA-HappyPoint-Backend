@@ -2,11 +2,9 @@ const bcrypt = require("bcrypt");
 const multer = require("multer");
 const fs = require("fs");
 const { Members, validate } = require("../../models/members.model");
-const CheckHeader = require("../../check.header/nbadigitalservice");
 
 exports.create = async (req, res) => {
   try {
-    await CheckHeader(req, res);
     const { error } = validate(req.body);
     if (error)
       return res

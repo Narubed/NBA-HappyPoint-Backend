@@ -8,12 +8,6 @@ const CheckHeader = require("../../check.header/nbadigitalservice");
 
 exports.commission = async (req, res) => {
   try {
-    await CheckHeader(req, res);
-    if (!req.body) {
-      return res.status(400).send({
-        message: "ส่งข้อมูลผิดพลาด",
-      });
-    }
     if (
       !req.body.phone_number ||
       !req.body.point ||
@@ -51,14 +45,10 @@ exports.commission = async (req, res) => {
         .then((data) => {
           if (!data) {
             res.status(404).send({
-              message: `ไม่สามารถเเก้ไขผู้ใช้งานนี้ได้`,
+              message: `ไม่สามารถเพิ่ม Point ผู้ใช้งานนี้ได้`,
               status: false,
             });
-          } else
-            res.status(201).send({
-              message: "ทำการเพิ่ม Point ใน Happy Point แล้ว",
-              status: true,
-            });
+          }
         })
         .catch((err) => {
           res.status(500).send({
@@ -73,7 +63,11 @@ exports.commission = async (req, res) => {
         ph_point: newPoint,
         ph_timestamp: req.body.timestamp,
       };
-      await new PointHistory(postPoint).save();
+      new PointHistory(postPoint).save();
+      res.status(201).send({
+        message: "ทำการเพิ่ม Point ใน Happy Point แล้ว",
+        status: true,
+      });
     } else {
       return res.status(201).send({
         status: true,
